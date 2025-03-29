@@ -39,9 +39,14 @@ jobs:
       run: java -version
       
     - name: Build with Maven
-      run: ./mvnw -B package -Dmaven.compiler.release=24 --enable-preview
+      run: |
+        ./mvnw -B package \
+          -Dmaven.compiler.release=24 \
+          -Dmaven.compiler.parameters=true \
+          -Dmaven.compiler.showWarnings=true
       env:
-        MAVEN_OPTS: "--add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"
+        MAVEN_OPTS: "--add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --enable-preview"
+          
     - name: Build with Maven
       run: ./mvnw -B package --file pom.xml -DskipTests
       env:
