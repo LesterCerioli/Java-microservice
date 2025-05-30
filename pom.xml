@@ -21,7 +21,7 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		<maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
 		<lombok.version>1.18.32</lombok.version>
-		<!-- Updated argLine for Java 17, removed --enable-preview and jdk.compiler specific add-opens -->
+		<jakarta.persistence.version>3.1.0</jakarta.persistence.version>
 		<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 	</properties>
 
@@ -35,6 +35,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Jakarta Persistence API -->
+		<dependency>
+			<groupId>jakarta.persistence</groupId>
+			<artifactId>jakarta.persistence-api</artifactId>
+			<version>${jakarta.persistence.version}</version>
 		</dependency>
 
 		<!-- Runtime Dependencies -->
@@ -90,9 +97,7 @@
 				<configuration>
 					<release>${maven.compiler.release}</release>
 					<compilerArgs>
-						<!-- <arg>--enable-preview</arg> --> <!-- Removed for Java 17 unless specific preview features are needed -->
 						<arg>-Xlint:all</arg>
-						<!-- <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg> --> <!-- Removed for Java 17 -->
 					</compilerArgs>
 					<fork>true</fork>
 					<meminitial>1024m</meminitial>
@@ -113,9 +118,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<jvmArguments>
-						<!-- --enable-preview --> <!-- Removed for Java 17 unless specific preview features are needed -->
 						--add-opens java.base/java.lang=ALL-UNNAMED
-						<!-- --add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --> <!-- Removed for Java 17 -->
 					</jvmArguments>
 					<excludes>
 						<exclude>
