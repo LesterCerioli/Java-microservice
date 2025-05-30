@@ -41,7 +41,7 @@ jobs:
     - name: Build with Maven
       run: |
         ./mvnw -B package \
-          -Dmaven.compiler.release=24 \
+          -Dmaven.compiler.release=17 \
           -Dmaven.compiler.parameters=true \
           -Dmaven.compiler.showWarnings=true
       env:
