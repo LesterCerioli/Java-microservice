@@ -1,17 +1,25 @@
 package com.medicalapp.api.domain.entities;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-
+@Entity
+@Table(name = "history_records")
 public record HistoryRecord(
-        UUID id,
+        @Id UUID id,
         UUID medicalRecordId,
         String action,
         String details,
         LocalDateTime timestamp
 ) {
+
+    private static final int MAX_ACTION_LENGTH = 255;
+    private static final int MAX_DETAILS_LENGTH = 10000;
+    private static final int AUDIT_SUMMARY_LENGTH = 50;
 
     public HistoryRecord {
         Objects.requireNonNull(id, "ID cannot be null");
@@ -20,7 +28,6 @@ public record HistoryRecord(
         details = validateDetails(details);
         Objects.requireNonNull(timestamp, "Timestamp cannot be null");
     }
-
 
     public static HistoryRecord create(UUID medicalRecordId, String action, String details) {
         return new HistoryRecord(
@@ -36,27 +43,39 @@ public record HistoryRecord(
         if (action == null || action.isBlank()) {
             throw new IllegalArgumentException("Action cannot be blank");
         }
-        if (action.length() > 255) {
-            throw new IllegalArgumentException("Action exceeds maximum length of 255 characters");
+        if (action.length() > MAX_ACTION_LENGTH) {
+            throw new IllegalArgumentException(
+                    String.format("Action exceeds maximum length of %d characters", MAX_ACTION_LENGTH)
+            );
         }
-        return action;
+        return action.trim();
     }
 
     private static String validateDetails(String details) {
         if (details == null) {
             return "";
         }
-        if (details.length() > 10000) {
-            throw new IllegalArgumentException("Details exceed maximum length");
+        if (details.length() > MAX_DETAILS_LENGTH) {
+            throw new IllegalArgumentException(
+                    String.format("Details exceed maximum length of %d characters", MAX_DETAILS_LENGTH)
+            );
         }
-        return details;
+        return details.trim();
+    }
+
+    public String toAuditString() {
+        String summary = details.length() > AUDIT_SUMMARY_LENGTH
+                ? details.substring(0, AUDIT_SUMMARY_LENGTH) + "..."
+                : details;
+
+        return String.format("[%s] %s - %s", timestamp, action, summary);
     }
 
 
-    public String toAuditString() {
-        return String.format("[%s] %s - %s",
-                timestamp.toString(),
-                action,
-                details.length() > 50 ? details.substring(0, 50) + "..." : details);
+    public String getSummary() {
+        return action + ": " + (details.isEmpty() ? "No details" :
+                details.length() > AUDIT_SUMMARY_LENGTH
+                        ? details.substring(0, AUDIT_SUMMARY_LENGTH) + "..."
+                        : details);
     }
 }
